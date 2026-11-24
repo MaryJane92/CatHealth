@@ -1,29 +1,32 @@
-import { useEffect, useState } from "react";
+/**
+ * Корневой компонент приложения.
+ * Настройка роутера и React Query.
+ */
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-interface HealthResponse {
-  status: string;
-  app: string;
-  version: string;
-}
+import { HomePage } from "@/pages/HomePage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function App() {
-  const [apiStatus, setApiStatus] = useState<string>("—");
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => r.json())
-      .then((data: HealthResponse) => setApiStatus(data.status))
-      .catch(() => setApiStatus("недоступен"));
-  }, []);
-
   return (
-    <div>
-      <h1>Cat Health Tracker</h1>
-      <p>Мониторинг здоровья кошек</p>
-      <p>
-        API статус: <strong>{apiStatus}</strong>
-      </p>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
